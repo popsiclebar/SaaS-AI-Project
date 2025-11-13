@@ -27,8 +27,9 @@ def idea(creds: HTTPAuthorizationCredentials = Depends(clerk_guard)):
             text = getattr(chunk, "text", None)
             if not text:
                 continue
-            yield f"data: {text.strip()}\n\n"
-        yield "data: [DONE]\n\n"
+            for line in text.splitlines(): 
+                yield f"data: {line}\n" 
+            yield "\n"
 
 
     return StreamingResponse(

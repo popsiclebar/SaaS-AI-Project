@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -10,11 +10,10 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 export default function Product() {
     const [idea, setIdea] = useState<string>("Click Start to generate an idea");
     const [isStreaming, setIsStreaming] = useState(false);
-    const [controller, setController] = useState<AbortController | null>(null);
+    const abortCtrlRef = useRef<AbortController | null>(null);
     const { getToken } = useAuth(); // 👈 get auth state
 
     const handleStreamToggle = async () => {
-        
         const token = await getToken();
         if (!token) {
             setIdea("Authentication required");
@@ -22,8 +21,12 @@ export default function Product() {
         }
         
         if(!isStreaming) {
+            if(abortCtrlRef.current) {
+                abortCtrlRef.current.abort();
+            }
+        
         const newController = new AbortController();
-        setController(newController);
+        abortCtrlRef.current = newController;
         setIdea("Loading...");
         setIsStreaming(true);
         let buffer = "";
@@ -38,19 +41,27 @@ export default function Product() {
             onerror(err) {
                 console.error('SSE error:', err);
                 setIsStreaming(false);
-                newController.abort();
+                abortCtrlRef.current?.abort();
+            },
+            onclose() {
+                setIsStreaming(false);
+                abortCtrlRef.current = null;
             },
         });
         } else {
-            controller?.abort();
+            if(abortCtrlRef.current) {
+                abortCtrlRef.current.abort();
+                abortCtrlRef.current = null;
+            }
             setIsStreaming(false);
-            setController(null);
+            console.log("Streaming is stopped by user");
         }
     };
 
     useEffect(() => {
         return () => {
-            controller?.abort();
+            abortCtrlRef.current?.abort();
+            abortCtrlRef.current = null;
         }
     }, [])
 
