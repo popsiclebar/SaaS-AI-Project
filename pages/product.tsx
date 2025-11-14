@@ -6,20 +6,23 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { useAuth } from '@clerk/nextjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { Protect, PricingTable, UserButton } from '@clerk/nextjs';
 
-export default function Product() {
+function StreamController () {
     const [idea, setIdea] = useState<string>("Click Start to generate an idea");
     const [isStreaming, setIsStreaming] = useState(false);
     const abortCtrlRef = useRef<AbortController | null>(null);
     const { getToken } = useAuth(); // 👈 get auth state
 
-    const handleStreamToggle = async () => {
+    const HandleStreamToggle = async() => {
+        // Verify user is authenticated
         const token = await getToken();
         if (!token) {
             setIdea("Authentication required");
             return;
         }
         
+        // Switching between streaming and stopping
         if(!isStreaming) {
             if(abortCtrlRef.current) {
                 abortCtrlRef.current.abort();
@@ -55,7 +58,7 @@ export default function Product() {
             }
             setIsStreaming(false);
             console.log("Streaming is stopped by user");
-        }
+        };
     };
 
     useEffect(() => {
@@ -63,8 +66,7 @@ export default function Product() {
             abortCtrlRef.current?.abort();
             abortCtrlRef.current = null;
         }
-    }, [])
-
+    }, []);
 
     return (
         <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -82,7 +84,7 @@ export default function Product() {
                 {/* Control button */}
                 <div className='text-center mb-12'>
                     <button
-                        onClick={handleStreamToggle}
+                        onClick={HandleStreamToggle}
                         className={`px-6 py-3 rounded-xl text-white font-semibold shadow-md transition 
                             ${isStreaming ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"}`}
                     >
@@ -111,6 +113,39 @@ export default function Product() {
                     </div>
                 </div>
             </div>
+        </main>
+    );
+}
+
+export default function Product() {
+    return (
+        <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+            {/* User Menu in Top Right */}
+            <div className="absolute top-4 right-4">
+                <UserButton showName={true} />
+            </div>
+
+            {/* Subscription Protection */}
+            <Protect
+                plan="premium_subscription" // name of the subscription plan in Clerk
+                fallback={
+                    <div className="container mx-auto px-4 py-12">
+                        <header className="text-center mb-12">
+                            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+                                Choose Your Plan
+                            </h1>
+                            <p className="text-gray-600 dark:text-gray-400 text-lg mb-8">
+                                Unlock unlimited AI-powered business ideas
+                            </p>
+                        </header>
+                        <div className="max-w-4xl mx-auto">
+                            <PricingTable />
+                        </div>
+                    </div>
+                }
+            >
+                <StreamController />
+            </Protect>
         </main>
     );
 }
