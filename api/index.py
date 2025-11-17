@@ -14,9 +14,10 @@ class Visit(BaseModel):
     patient_name: str
     date_of_visit: str
     notes: str
+    specialty: str
 
 
-system_prompt = """
+system_general_prompt = """
 You are provided with notes written by a doctor from a patient's visit.
 Your job is to summarize the visit for the doctor and provide an email.
 Reply with exactly three sections with the headings:
@@ -25,12 +26,22 @@ Reply with exactly three sections with the headings:
 ### Draft of email to patient in patient-friendly language
 """
 
+def get_system_prompt(specialty: str) -> str:
+    prompts = {
+        "general practice": "Provide general records and recommendations...",
+        "cardiology": "Focus on cardiac symptoms and cardiovascular health...",
+        "pediatrics": "Use child-friendly language in patient communications...",
+        "psychiatry": "Include mental health considerations and resources..."
+    }
+    return prompts.get(specialty, system_general_prompt)
+
 
 def user_prompt_for(visit: Visit) -> str:
     return f"""Create the summary, next steps and draft email for:
 Patient Name: {visit.patient_name}
 Date of Visit: {visit.date_of_visit}
-Notes: {visit.notes}"""
+Notes: {visit.notes}
+Specialty: {visit.specialty}"""
 
 
 @app.post("/api")
@@ -41,6 +52,7 @@ def consultation_summary(
     user_id = creds.decoded["sub"]  # Available for tracking/auditing
     client = OpenAI()
 
+    system_prompt = system_general_prompt + '\n' + get_system_prompt(visit.specialty)
     user_prompt = user_prompt_for(visit)
 
     prompt = [

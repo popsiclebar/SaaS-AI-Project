@@ -21,6 +21,9 @@ function ConsultationForm() {
     const [output, setOutput] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Add specialty selection
+    const [specialty, setSpecialty] = useState('General Practice');
+
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setOutput('');
@@ -47,6 +50,7 @@ function ConsultationForm() {
                 patient_name: patientName,
                 date_of_visit: visitDate?.toISOString().slice(0, 10),
                 notes,
+                specialty,
             }),
             onmessage(ev) {
                 buffer += ev.data;
@@ -98,6 +102,24 @@ function ConsultationForm() {
                         required
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                     />
+                </div>
+
+                <div className="space-y-2">
+                    <label htmlFor="specialty" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Specialty
+                    </label>
+                    <select
+                        id="specialty"
+                        required
+                        value={specialty}
+                        onChange={(e) => setSpecialty(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    >
+                        <option value="general practice">General Practice</option>
+                        <option value="cardiology">Cardiology</option>
+                        <option value="pediatrics">Pediatrics</option>
+                        <option value="psychiatry">Psychiatry</option>
+                    </select>
                 </div>
 
                 <div className="space-y-2">
