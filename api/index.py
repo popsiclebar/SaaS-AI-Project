@@ -7,25 +7,6 @@ from fastapi_clerk_auth import ClerkConfig, ClerkHTTPBearer, HTTPAuthorizationCr
 
 app = FastAPI()
 
-@app.get("/genai-test")
-def genai_test():
-    from google import genai
-    api_key = os.environ.get("GEMINI_API_KEY")
-
-    if not api_key:
-        return {"error": "No GEMINI_API_KEY"}
-
-    try:
-        client = genai.Client(api_key=api_key)
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents="Say 'GenAI test OK' only."
-        )
-        return {"reply": response.text}
-    except Exception as e:
-        return {"error": str(e)}
-
-
 clerk_config = ClerkConfig(jwks_url=os.environ.get("CLERK_JWKS_URL"))
 clerk_guard = ClerkHTTPBearer(clerk_config)
 
