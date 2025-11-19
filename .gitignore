@@ -42,3 +42,6 @@ next-env.d.ts
 
 #Clerk
 .env.local
+
+#AWS
+.env
