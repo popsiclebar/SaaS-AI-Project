@@ -34,4 +34,4 @@ Build Docker image and deploy to AWS App Runner. Health check endpoint: `/health
 
 ---
 
-**Note:** This README is a starting point. Please update it as the project evolves!
+**Note:** This project is a starting point. Please update it as the project evolves!
