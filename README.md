@@ -12,26 +12,17 @@ AI-powered SaaS application that generates consultation summaries, next steps, a
 
 ### Installation
 
-# Install frontend dependencies
+#### Install frontend dependencies
 npm install
 
-# Install backend dependencies
-cd api
-pip install -r requirements.txt### Environment Variables
+#### Environment Variables
+- Create `.env.local`
+- NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_key
+- CLERK_SECRET_KEY=your_secret
+- CLERK_JWKS_URL=your_jwks_url
+- OPENAI_API_KEY=your_openai_key
 
-Create `.env.local`:nv
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_key
-CLERK_SECRET_KEY=your_secret
-CLERK_JWKS_URL=your_jwks_url
-OPENAI_API_KEY=your_openai_key### Run Locally
-h
-# Frontend (port 3000)
-npm run dev
-
-# Backend (port 8000)
-cd api
-uvicorn server:app --reload## Tech Stack
-
+## Tech Stack
 - **Frontend:** Next.js, React, TypeScript, Tailwind CSS
 - **Backend:** FastAPI, Python
 - **Auth:** Clerk
